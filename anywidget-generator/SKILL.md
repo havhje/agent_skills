@@ -1,5 +1,6 @@
 ---
 name: anywidget-generator
+disable-model-invocation: true
 description: Generate anywidget components for marimo notebooks.
 ---
 

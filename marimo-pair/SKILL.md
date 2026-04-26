@@ -1,5 +1,6 @@
 ---
 name: marimo-pair
+disable-model-invocation: true
 description: >-
   Work inside a running marimo notebook's kernel — execute code, create cells,
   and build a notebook as an artifact. Use when the user wants to start a

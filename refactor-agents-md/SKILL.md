@@ -1,5 +1,6 @@
 ---
 name: refactor-agents-md
+disable-model-invocation: true
 description: Refactor AGENTS.md files to follow progressive disclosure principles, keeping root minimal and organizing rules into separate linked files.
 ---
 

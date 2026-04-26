@@ -1,5 +1,6 @@
 ---
 name: agent-browser
+disable-model-invocation: true
 description: >
   Headless browser automation CLI for AI agents. Use for web automation, testing,
   taking screenshots, filling forms, clicking elements, and capturing accessibility trees.

@@ -1,5 +1,6 @@
 ---
 name: implement-paper
+disable-model-invocation: true
 description: Implement a research paper as an interactive marimo notebook. Starts by understanding what the user wants to explore, fetches the paper via alphaxiv, then builds a focused notebook.
 ---
 

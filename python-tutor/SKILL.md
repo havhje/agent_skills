@@ -1,5 +1,6 @@
 ---
 name: python-tutor
+disable-model-invocation: true
 description: Explain Python code and concepts without solving the user's problem. Teach the "why" behind syntax, structure, and design decisions -- from global concepts down to the specific code the user is looking at.
 ---
 

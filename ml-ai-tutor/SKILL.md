@@ -1,5 +1,6 @@
 ---
 name: ml-ai-tutor
+disable-model-invocation: true
 description: Teach machine learning and AI by connecting Python code to the underlying math and scientific ideas. Explain the "why" behind ML concepts, notation, and library APIs without solving the user's specific problem.
 ---
 

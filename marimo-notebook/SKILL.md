@@ -1,5 +1,6 @@
 ---
 name: marimo-notebook
+disable-model-invocation: true
 description: Write a marimo notebook in a Python file in the right format.
 ---
 

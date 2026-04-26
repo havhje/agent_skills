@@ -1,5 +1,6 @@
 ---
 name: pi-tutor
+disable-model-invocation: true
 description: Explain the pi coding agent harness, its architecture, the LLM tool-use loop, extensions, skills, sessions, and customization without doing the work for the user. Teach the "why" behind how pi works so the user can modify and extend it themselves.
 ---
 
