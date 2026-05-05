@@ -2,103 +2,92 @@
 name: marimo-pair-typed
 disable-model-invocation: true
 description: >-
-  Work inside a running marimo notebook's kernel using the marimo_run and
-  marimo_cell tools. Execute code, create cells, and build a notebook as an
-  artifact. Use when the user wants to work in an active marimo session.
+  Pair-program in a running marimo notebook using marimo-live typed tools.
+  Use for focused notebook context and rare marimo._code_mode fallbacks.
 ---
 
 # marimo Pair Programming (Typed Tools)
 
-The user connects to a running notebook via `/marimo`. Once connected,
-use the marimo tools directly — no scripts, no shell.
+This skill is a compact overlay on `marimo-live`. The extension already supplies
+active tool schemas, connected guidance, autocomplete, and `@` mention context.
+Avoid repeating tool docs or dumping notebook state.
 
-## Philosophy
+## Core workflow
 
-marimo notebooks are a dataflow graph — cells are the fundamental unit of
-computation, connected by the variables they define and reference. When a cell
-runs, marimo automatically re-executes downstream cells.
+- Use focused `@` mentions for context.
+- Use `marimo_run` for live inspection/prototypes; it does not persist cells.
+- Use `marimo_list_cells` before editing; request full code only for selected ids.
+- Use `marimo_cell` for persistent create/edit/delete/run changes.
+- `marimo-live` auto-runs `marimo_check` once after dirty notebook edits; fix injected failures. Use `marimo_check` or `/marimo check` for an explicit pre-handoff check.
+- Never edit the notebook `.py` file directly while connected.
+- marimo is reactive: changing one cell can re-run downstream cells.
 
-- **Cells are your main lever.** Use them to break up work and choose how and
-  when to bring the human into the loop. Not every cell needs rich output —
-  sometimes the object itself is enough, sometimes a summary is better.
-  Match the presentation to the intent.
-- **Understand intent first.** When clear, act. When ambiguous, clarify.
-- **Follow existing signal.** Check imports, `pyproject.toml`, existing cells,
-  and `dir(ctx)` before reaching for external tools.
-- **Stay focused.** Build first, polish later — cell names, layout, and styling
-  can wait.
+## Mentions and token control
+
+Trust injected `marimo-mentioned-context` for mentioned objects, but do not assume
+unmentioned notebook state.
+
+Common forms:
+
+```text
+@df:schema                  # shape + schema/dtypes
+@df:sample                  # bounded sample rows
+@df:profile                 # schema + sample
+@df:plan                    # lazy plan if available
+@function:clean_data:source
+@function:clean_data:signature
+@cell:<id>:summary
+@cell:<id>:code
+@variable:config:value
+@variable:model:repr
+```
+
+Prefer suffixes over broad context. Range suffixes like `@df:sample[30:60]` are
+not supported; use `marimo_run` for targeted slices such as `cols[30:60]`.
+
+## Advanced `code_mode` via `marimo_run`
+
+Prefer typed tools first: `marimo_install_packages`, `marimo_set_ui_value`,
+and `marimo_cell(action="run")` now cover common advanced operations.
+
+Use private code-mode only for unsupported `ctx.*` operations:
+
+```python
+import marimo._code_mode as cm
+async with cm.get_context() as ctx:
+    print(dir(ctx))
+```
+
+Rules:
+
+- Always use `async with cm.get_context() as ctx`.
+- API shape may change; inspect before relying on a method.
+- Prefer typed tools for run/list/cell/package/UI operations.
+
+## Guard rails
+
+- Install packages with `marimo_install_packages`, not `uv add`/`pip`, unless it fails and the user approves a fallback.
+- The user may edit concurrently; re-inspect before risky edits.
+- Deletes are destructive and remove variables from kernel memory; ask if unclear.
+- Package installs modify the project; confirm if not obviously required.
+- No temp-file dependencies in cells, e.g. `/tmp/...`.
+- Use `marimo_set_ui_value` for `mo.ui`; use `marimo_run` for anywidget traitlets.
+- Avoid empty cells; cell names are optional.
 
 ## Connecting
 
-The extension auto-connects when exactly one server with one session is found.
-Otherwise the user runs `/marimo` to pick. If no server is running, tell the
-user to start one:
+The extension may auto-connect when exactly one server/session exists. Otherwise
+ask the user to run `/marimo`. If no server is running:
 
 ```bash
-uv run marimo edit notebook.py --no-token
+uv run marimo edit --no-token notebook.py
 ```
 
-Only `--no-token` servers are auto-discoverable. For token auth, set
-`MARIMO_TOKEN`. See [finding-marimo.md](reference/finding-marimo.md) for
-the full decision tree.
-
-## code_mode API (via marimo_run)
-
-For operations beyond create/edit/delete, use `marimo_run` with the
-`code_mode` API directly:
-
-**Install packages:**
-```
-marimo_run: code="import marimo._code_mode as cm\nasync with cm.get_context() as ctx:\n    ctx.install_packages('pandas', 'seaborn')"
-```
-
-**Set UI element values:**
-```
-marimo_run: code="import marimo._code_mode as cm\nasync with cm.get_context() as ctx:\n    ctx.set_ui_value(slider, 5)"
-```
-
-**Explore the code_mode API (do this first — it can change between versions):**
-```
-marimo_run: code="import marimo._code_mode as cm\nasync with cm.get_context() as ctx:\n    print(dir(ctx))"
-```
-
-The `code_mode` API rules:
-- You **must** use `async with` — without it, operations silently do nothing.
-- All `ctx.*` methods are **synchronous** — they queue operations and the
-  context manager flushes them on exit. Do **not** `await` them.
-- `create_cell` and `edit_cell` are structural only — use `run_cell` to
-  execute. (`marimo_cell` handles this automatically.)
-
-## Guard Rails
-
-Skip these and the UI breaks:
-
-- **Install packages via `ctx.install_packages()`, not `uv add` or `pip`.**
-  Only fall back to external CLIs if the API fails.
-- **Custom widget = anywidget.** `mo.ui` is fine for simple controls.
-  See [rich-representations.md](reference/rich-representations.md).
-- **NEVER write to the `.py` file directly — the kernel owns it.**
-- **No temp-file deps in cells.** `pathlib.Path("/tmp/...")` is a bug.
-- **Avoid empty cells.** Edit existing empty cells rather than creating new ones.
-- **Cell names are optional.** Most don't need them —
-  see [notebook-improvements.md](reference/notebook-improvements.md#cell-names).
-- **Anywidget reactivity:** bridge traits with `mo.state` + `.observe()`
-  (default) or `mo.ui.anywidget()` (coarser). One strategy per widget.
-  See [rich-representations.md](reference/rich-representations.md).
-
-## Keep in Mind
-
-- **The user is editing too.** The notebook can change between your calls —
-  re-inspect notebook state if it's been a while since you last looked.
-- **Deletions are destructive.** Deleting a cell removes its variables from
-  kernel memory — restoring means recreating the cell and re-running it and
-  its dependents. If intent seems ambiguous, ask first.
-- **Installing packages changes the project.** `ctx.install_packages()` adds
-  real dependencies — confirm when it's not obvious from context.
+For token-authenticated servers, Pi needs `MARIMO_TOKEN`.
 
 ## References
 
-- [finding-marimo.md](reference/finding-marimo.md) — how to find and invoke the right marimo
-- [gotchas.md](reference/gotchas.md) — cached module proxies and other traps
-- [rich-representations.md](reference/rich-representations.md) — custom widgets and visualizations
-- [notebook-improvements.md](reference/notebook-improvements.md) — improving existing notebooks
+- [finding-marimo.md](reference/finding-marimo.md)
+- [gotchas.md](reference/gotchas.md)
+- [rich-representations.md](reference/rich-representations.md)
+- [notebook-improvements.md](reference/notebook-improvements.md)
