@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+qgis_style_pixi=${QGIS_STYLE_PIXI_BIN:-/home/havhje/.local/bin/pixi}
+qgis_style_manifest=${QGIS_STYLE_PIXI_MANIFEST:-/home/havhje/qgis-geoai/pixi.toml}
+
+exec env QT_QPA_PLATFORM=offscreen \
+  "$qgis_style_pixi" run --frozen --manifest-path "$qgis_style_manifest" \
+  python "$@"

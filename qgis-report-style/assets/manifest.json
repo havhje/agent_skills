@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "reference_project": "/home/havhje/qgis-geoai/projects/sno_ugle.qgz",
+  "qgis_version": "3.44.7-Solothurn",
+  "project_crs": "EPSG:25835",
+  "layouts": [],
+  "layout_assets": [
+    {
+      "name": "report-a3-landscape",
+      "path": "layouts/report-a3-landscape.qpt",
+      "page_size": "A3",
+      "orientation": "landscape"
+    },
+    {
+      "name": "report-a4-landscape",
+      "path": "layouts/report-a4-landscape.qpt",
+      "page_size": "A4",
+      "orientation": "landscape"
+    },
+    {
+      "name": "report-a4-portrait-page4",
+      "path": "layouts/report-a4-portrait-page4.qpt",
+      "page_size": "A4",
+      "orientation": "portrait"
+    }
+  ],
+  "layers": [
+    {
+      "role": "ndvi-continuous",
+      "reference_layer": ".ndvi.partial",
+      "style": "styles/ndvi-continuous.qml",
+      "provider": "gdal",
+      "visible": true,
+      "blend_mode": 0,
+      "renderer": "singlebandpseudocolor"
+    },
+    {
+      "role": "surface-height",
+      "reference_layer": "surface_height",
+      "style": "styles/surface-height.qml",
+      "provider": "gdal",
+      "visible": true,
+      "blend_mode": 13,
+      "renderer": "singlebandgray"
+    },
+    {
+      "role": "wind-power",
+      "reference_layer": "Vindkraftverkene",
+      "style": "styles/wind-power.qml",
+      "provider": "ogr",
+      "visible": true,
+      "blend_mode": 0,
+      "renderer": "singleSymbol"
+    },
+    {
+      "role": "study-boundary",
+      "reference_layer": "east_of_alta",
+      "style": "styles/study-boundary.qml",
+      "provider": "ogr",
+      "visible": false,
+      "blend_mode": 0,
+      "renderer": "singleSymbol"
+    },
+    {
+      "role": "habitat-class",
+      "reference_layer": "habitat_class",
+      "style": "styles/habitat-class.qml",
+      "provider": "gdal",
+      "visible": false,
+      "blend_mode": 0,
+      "renderer": "paletted"
+    },
+    {
+      "role": "ndvi-class",
+      "reference_layer": "ndvi_class",
+      "style": "styles/ndvi-class.qml",
+      "provider": "gdal",
+      "visible": false,
+      "blend_mode": 0,
+      "renderer": "paletted"
+    },
+    {
+      "role": "height-class",
+      "reference_layer": "height_class",
+      "style": "styles/height-class.qml",
+      "provider": "gdal",
+      "visible": false,
+      "blend_mode": 0,
+      "renderer": "paletted"
+    }
+  ]
+}
